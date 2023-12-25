@@ -5,6 +5,7 @@ const { spawn } = require('child_process');
 
 const app = express();
 const port = 3000;
+const fs = require('fs');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -38,14 +39,22 @@ app.post('/upload', upload.single('prescriptionImage'), (req, res) => {
   const filePath = req.file.path;
 
   // Python 모델 호출
-  const pythonProcess = spawn('python', ['파이선파일 경로.py', filePath]);
+  const pythonProcess = spawn('python', ['./model_module/extract.py', filePath]);
 
   // Python 모델의 표준 출력 데이터 수신
   pythonProcess.stdout.on('data', (data) => {
-    const resultText = data.toString().trim();
-
-    // 결과를 Frontend로 전송
-    res.json({ result: resultText });
+    //const resultText = data.toString().trim();
+    fs.readFile('patient_info.json', 'utf8', (error, jsonContents) => {
+      if (error) {
+        console.error("ERROR");
+        res.status(500).json({error: ' Reading Internal Server Error'});
+        return;
+      }
+      else {
+        const resultJson = JSON.parse(jsonContents);
+        res.json(resultJson);
+      }
+    });
   });
 
   // Python 모델의 표준 에러 출력 데이터 수신 (에러 처리)

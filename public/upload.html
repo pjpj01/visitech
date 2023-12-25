@@ -11,5 +11,26 @@
         <!-- 다른 필드들 -->
         <input type="submit" value="Upload">
     </form>      
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+        
+            const formData = new FormData(this);
+        
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                // 서버에서 받은 JSON 데이터를 처리
+                window.alert(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
 </body>
 </html>
